@@ -1,0 +1,92 @@
+Why cmd/ Exists
+
+This is one of the most distinctive conventions in Go projects.
+
+Suppose your repository eventually contains:
+
+API server
+Background worker
+Migration CLI
+Seed-data utility
+
+Each is an executable.
+
+Instead of putting multiple main.go files in the root, we separate them.
+
+cmd/
+
+server/
+
+worker/
+
+migrate/
+
+seed/
+
+Each directory contains exactly one executable.
+
+Example:
+
+cmd/
+
+server/
+    main.go
+
+worker/
+    main.go
+
+Each compiles into a different binary.
+
+go build ./cmd/server
+go build ./cmd/worker
+
+This keeps responsibilities clear.
+
+Why Not Put main.go in the Root?
+
+For small examples, it's fine.
+
+For production systems:
+
+the root should describe the repository,
+not contain executable logic.
+
+The root becomes a place for:
+
+README
+
+Dockerfile
+
+Makefile
+
+go.mod
+
+LICENSE
+
+CI/CD configs
+
+This convention makes repositories easier to navigate.
+
+
+Why Not Put main.go in the Root?
+
+For small examples, it's fine.
+
+For production systems:
+
+the root should describe the repository,
+not contain executable logic.
+
+The root becomes a place for:
+
+README
+
+Dockerfile
+
+Makefile
+
+go.mod
+
+LICENSE
+
+CI/CD configs

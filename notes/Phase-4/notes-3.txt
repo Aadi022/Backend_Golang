@@ -1,0 +1,7 @@
+A production main() should not contain business logic. Its only responsibility is to assemble the application and start it.
+This root main of the repo will be the orchastrator delegating tasks to other main(), this wont include the business logic
+
+Why cmd/server/main.go?
+Many newcomers ask:
+Why not put main.go in the project root?
+Because our repository may eventually contain multiple executables.

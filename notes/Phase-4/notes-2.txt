@@ -1,0 +1,22 @@
+internal/ → application-specific code that should remain private.
+pkg/ → reusable libraries intended for use by other projects.
+
+Any package inside internal/ can only be imported by code within the same module.
+
+Internal folder structure
+
+| Folder          | One-line Explanation                                                                                                              |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **auth/**       | Contains all authentication and authorization logic such as JWT generation, token validation, password hashing, and RBAC helpers. |
+| **config/**     | Loads, validates, and provides application configuration from environment variables or configuration files.                       |
+| **database/**   | Initializes and manages the database connection, connection pool, and database-related setup.                                     |
+| **dto/**        | Defines Data Transfer Objects used for API requests and responses, separate from database models.                                 |
+| **handler/**    | Receives HTTP requests, validates input, calls the appropriate service, and returns HTTP responses.                               |
+| **logger/**     | Provides centralized logging configuration and helper functions for structured application logs.                                  |
+| **middleware/** | Contains reusable HTTP middleware such as authentication, logging, CORS, panic recovery, and rate limiting.                       |
+| **model/**      | Defines the application's core domain entities and database models (e.g., User, Project, Task).                                   |
+| **repository/** | Encapsulates all database operations (CRUD, queries, transactions) and isolates persistence from business logic.                  |
+| **response/**   | Provides standardized API response structures and helper functions for success and error responses.                               |
+| **router/**     | Registers all application routes and connects URL endpoints to their corresponding handlers and middleware.                       |
+| **service/**    | Implements the application's business logic and orchestrates interactions between handlers and repositories.                      |
+| **validator/**  | Contains reusable validation rules and custom validators for incoming request data.                                               |
