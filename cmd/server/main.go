@@ -33,11 +33,15 @@ func main() {
 	//Dependency Injection
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
-	_ = userService //We know that this variable is not used anywhere
+	userHandler := handler.NewUserHandler(userService)
+	//_ = userService //We know that this variable is not used anywhere
 
 	healthHandler := handler.NewHealthHandler()
 
-	r := router.New(healthHandler)
+	r := router.New(
+		healthHandler,
+		userHandler,
+	)
 
 	server := &http.Server{ //This object represents your HTTP server and lets you configure and control it.
 		Addr:         ":" + cfg.Port,

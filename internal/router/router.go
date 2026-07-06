@@ -7,23 +7,43 @@ import (
 	"github.com/Aadi022/Backend_Golang/internal/middleware"
 )
 
-func New(health *handler.HealthHandler) http.Handler {
+// Constructor function that creates and returns the router
+func New(
+	health *handler.HealthHandler,
+	user *handler.UserHandler,
+) http.Handler {
+
+	// Create a new ServeMux
 	mux := http.NewServeMux()
 
-	healthHandler := middleware.Recovery(
-		middleware.Logging(
-			http.HandlerFunc(health.Health),
+	// Health routes
+	mux.Handle(
+		"GET /health",
+		middleware.Recovery(
+			middleware.Logging(
+				http.HandlerFunc(health.Health),
+			),
 		),
 	)
 
-	readyHandler := middleware.Recovery(
-		middleware.Logging(
-			http.HandlerFunc(health.Ready),
+	mux.Handle(
+		"GET /ready",
+		middleware.Recovery(
+			middleware.Logging(
+				http.HandlerFunc(health.Ready),
+			),
 		),
 	)
 
-	mux.Handle("/health", healthHandler)
-	mux.Handle("/ready", readyHandler)
+	// Authentication routes
+	mux.Handle(
+		"POST /api/v1/auth/register",
+		middleware.Recovery(
+			middleware.Logging(
+				http.HandlerFunc(user.Register),
+			),
+		),
+	)
 
 	return mux
 }
