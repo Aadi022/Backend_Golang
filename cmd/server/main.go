@@ -13,6 +13,7 @@ import (
 	"github.com/Aadi022/Backend_Golang/internal/handler"
 	"github.com/Aadi022/Backend_Golang/internal/repository"
 	"github.com/Aadi022/Backend_Golang/internal/router"
+	"github.com/Aadi022/Backend_Golang/internal/service"
 )
 
 func main() {
@@ -31,7 +32,8 @@ func main() {
 
 	//Dependency Injection
 	userRepo := repository.NewUserRepository(db)
-	_ = userRepo //We know that this variable is not used anywhere
+	userService := service.NewUserService(userRepo)
+	_ = userService //We know that this variable is not used anywhere
 
 	healthHandler := handler.NewHealthHandler()
 
