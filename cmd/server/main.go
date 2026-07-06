@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Aadi022/Backend_Golang/internal/config"
+	"github.com/Aadi022/Backend_Golang/internal/database"
 	"github.com/Aadi022/Backend_Golang/internal/handler"
 	"github.com/Aadi022/Backend_Golang/internal/router"
 )
@@ -16,6 +17,12 @@ import (
 func main() {
 	//Load configuration
 	cfg := config.Load()
+
+	db, err := database.Connect(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = db //this tells go "I know I am not using db yet", else it will return error
 
 	healthHandler := handler.NewHealthHandler()
 

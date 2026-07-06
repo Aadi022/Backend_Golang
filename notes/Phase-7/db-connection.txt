@@ -1,0 +1,10 @@
+What is a DSN?
+
+DSN (Data Source Name) is just a connection string that tells PostgreSQL:
+
+Host
+Port
+Username
+Password
+Database name
+SSL mode
