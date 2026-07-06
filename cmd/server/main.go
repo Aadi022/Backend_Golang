@@ -18,11 +18,15 @@ func main() {
 	//Load configuration
 	cfg := config.Load()
 
-	db, err := database.Connect(cfg)
+	db, err := database.Connect(cfg) //connect to PostgreSQL
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = db //this tells go "I know I am not using db yet", else it will return error
+
+	// Run database migrations
+	if err := database.Migrate(db); err != nil {
+		log.Fatal(err)
+	}
 
 	healthHandler := handler.NewHealthHandler()
 
