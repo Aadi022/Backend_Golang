@@ -3,15 +3,31 @@ package config
 import "os"
 
 type Config struct {
-	Port string
+	Port       string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBSSLMode  string
 }
 
-func Load() Config {
-	port := os.Getenv("PORT")
-
-	if port == "" {
-		port = "8080"
+func getEnv(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
 	}
+	return value
+}
 
-	return Config{Port: port}
+func Load() *Config {
+	return &Config{
+		Port:       getEnv("PORT", "8080"),
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "project_management"),
+		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
+	}
 }

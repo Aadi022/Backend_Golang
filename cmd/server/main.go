@@ -28,9 +28,9 @@ func main() {
 		WriteTimeout: 10 * time.Second, //The server has 10 seconds to finish writing the response.
 		IdleTimeout:  120 * time.Second,
 	}
+	log.Printf("Starting server on :%s", cfg.Port)
 
 	go func() { //function to start the server
-		log.Printf("Server stared on :%s\n", cfg.Port)
 
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed { //we dont stop for http.ErrServerClosed as we are entertaining graceful shutdown
 			log.Fatal(err)
