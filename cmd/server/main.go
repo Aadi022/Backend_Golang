@@ -11,6 +11,7 @@ import (
 	"github.com/Aadi022/Backend_Golang/internal/config"
 	"github.com/Aadi022/Backend_Golang/internal/database"
 	"github.com/Aadi022/Backend_Golang/internal/handler"
+	"github.com/Aadi022/Backend_Golang/internal/repository"
 	"github.com/Aadi022/Backend_Golang/internal/router"
 )
 
@@ -27,6 +28,10 @@ func main() {
 	if err := database.Migrate(db); err != nil {
 		log.Fatal(err)
 	}
+
+	//Dependency Injection
+	userRepo := repository.NewUserRepository(db)
+	_ = userRepo //We know that this variable is not used anywhere
 
 	healthHandler := handler.NewHealthHandler()
 
