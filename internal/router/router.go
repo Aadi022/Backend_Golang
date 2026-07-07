@@ -45,5 +45,14 @@ func New(
 		),
 	)
 
+	mux.Handle(
+		"POST /api/v1/auth/login", //Register the login endpoint
+		middleware.Recovery(
+			middleware.Logging(
+				http.HandlerFunc(user.Login),
+			),
+		),
+	)
+
 	return mux
 }

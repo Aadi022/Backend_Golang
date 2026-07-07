@@ -10,11 +10,13 @@ import (
 
 type UserService struct {
 	repo *repository.UserRepository //repository instance that talks to the user db
+	jwt  *JWTService
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
+func NewUserService(repo *repository.UserRepository, jwt *JWTService) *UserService {
 	return &UserService{
 		repo: repo,
+		jwt:  jwt,
 	}
 }
 
@@ -41,4 +43,23 @@ func (s *UserService) Register(name, email, password string) error {
 	}
 
 	return s.repo.Create(user)
+}
+
+func (s *UserService) Login(email, password string) (string, error) {
+	user, err := s.repo.GetByEmail(email) //Find the user by email
+	if err != nil {
+		return "", errors.New("invalid email or password") //common practice to not reveal which field is invalid due to security reasons
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) //compares the entered password with the hashed password using bcrypt's function
+	if err != nil {
+		return "", errors.New("Invalid email or password")
+	}
+
+	token, err := s.jwt.Generate(user.ID) //generate a jwt containing the user's ID
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil //return the jwt token
 }

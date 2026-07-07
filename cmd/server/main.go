@@ -17,10 +17,11 @@ import (
 )
 
 func main() {
-	//Load configuration
+	// Load configuration
 	cfg := config.Load()
 
-	db, err := database.Connect(cfg) //connect to PostgreSQL
+	// Connect to PostgreSQL
+	db, err := database.Connect(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,54 +31,60 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//Dependency Injection
-	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
-	//_ = userService //We know that this variable is not used anywhere
+	// ---------------- Dependency Injection ----------------
 
-	healthHandler := handler.NewHealthHandler()
+	userRepo := repository.NewUserRepository(db)                // Create the User Repository
+	jwtService := service.NewJWTService(cfg.JWTSecret)          // Create the JWT service using the secret from config
+	userService := service.NewUserService(userRepo, jwtService) // Inject Repository and JWT Service into UserService
+	userHandler := handler.NewUserHandler(userService)          // Inject UserService into UserHandler
+
+	healthHandler := handler.NewHealthHandler() // Create Health Handler
+
+	// ------------------------------------------------------
 
 	r := router.New(
 		healthHandler,
 		userHandler,
 	)
 
-	server := &http.Server{ //This object represents your HTTP server and lets you configure and control it.
+	server := &http.Server{ // This object represents your HTTP server and lets you configure and control it.
 		Addr:         ":" + cfg.Port,
-		Handler:      r,                //Whenever a request arrives, pass it to this router.
-		ReadTimeout:  5 * time.Second,  //The client has 5 seconds to send its request.
-		WriteTimeout: 10 * time.Second, //The server has 10 seconds to finish writing the response.
-		IdleTimeout:  120 * time.Second,
+		Handler:      r,                 // Whenever a request arrives, pass it to this router.
+		ReadTimeout:  5 * time.Second,   // The client has 5 seconds to send its request.
+		WriteTimeout: 10 * time.Second,  // The server has 10 seconds to finish writing the response.
+		IdleTimeout:  120 * time.Second, // Close idle connections after 120 seconds.
 	}
+
 	log.Printf("Starting server on :%s", cfg.Port)
 
-	go func() { //function to start the server
+	go func() { // Start the HTTP server in a separate goroutine
 
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed { //we dont stop for http.ErrServerClosed as we are entertaining graceful shutdown
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			// Ignore ErrServerClosed because it occurs during graceful shutdown
 			log.Fatal(err)
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)   //create a channel to capture os interrupt
-	signal.Notify(quit, os.Interrupt) //enqueue in the channel for any os interrupt
+	quit := make(chan os.Signal, 1)   // Create a channel to receive OS interrupt signals
+	signal.Notify(quit, os.Interrupt) // Notify this channel when Ctrl+C (SIGINT) is pressed
 
-	<-quit //blocking statement that waits till something arrives in the channel
+	<-quit // Block until an interrupt signal is received
 
 	log.Println("Shutting down the server...")
-	//A context tells a function how long it's allowed to run and when it should stop.
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) //creates a context with 10 second timeout
-	//context.Background() creates an empty context, context.withTimeout creates a child context that is automatically cancelled after specific duration
-	/*
-		ctx → A context object that carries the 10-second timeout and is passed to server.Shutdown() so it knows how long it has to shut down.
-		cancel → A function (func()) that manually cancels the context and frees its internal resources before the timeout if you're done with it.
-	*/
-	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil { //starts a graceful shutdown
+	// A context tells a function how long it's allowed to run and when it should stop.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second) // Create a context with a 10-second timeout
+
+	/*
+		ctx    -> Carries the 10-second timeout and is passed to server.Shutdown().
+		cancel -> Cancels the context manually and frees its internal resources.
+	*/
+
+	defer cancel() // Ensure resources associated with the context are released
+
+	if err := server.Shutdown(ctx); err != nil { // Gracefully stop accepting new requests and wait for ongoing ones to finish
 		log.Fatal(err)
 	}
 
 	log.Println("Server stopped successfully")
-
 }
