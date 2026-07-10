@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Aadi022/Backend_Golang/internal/dto"
+	"github.com/Aadi022/Backend_Golang/internal/middleware"
 	"github.com/Aadi022/Backend_Golang/internal/response"
 	"github.com/Aadi022/Backend_Golang/internal/service"
 )
@@ -59,4 +60,17 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	response.Success(w, http.StatusOK, map[string]string{ //respond with the jwt token
 		"access_token": token,
 	})
+}
+
+func (h *UserHandler) Profile(w http.ResponseWriter, r *http.Request) {
+	//middleware.UserIDKey is just a constant/key used to store and retrieve the user ID from the request context
+	userID := r.Context().Value(middleware.UserIDKey).(uint) // Read the authenticated user's ID from the request context
+
+	response.Success(
+		w,
+		http.StatusOK,
+		map[string]any{
+			"user_id": userID, // Return the authenticated user's ID
+		},
+	)
 }

@@ -5,12 +5,14 @@ import (
 
 	"github.com/Aadi022/Backend_Golang/internal/handler"
 	"github.com/Aadi022/Backend_Golang/internal/middleware"
+	"github.com/Aadi022/Backend_Golang/internal/service"
 )
 
 // Constructor function that creates and returns the router
 func New(
 	health *handler.HealthHandler,
 	user *handler.UserHandler,
+	jwtService *service.JWTService, // JWT Service required by Auth middleware to validate tokens
 ) http.Handler {
 
 	// Create a new ServeMux
@@ -46,10 +48,22 @@ func New(
 	)
 
 	mux.Handle(
-		"POST /api/v1/auth/login", //Register the login endpoint
+		"POST /api/v1/auth/login", // Register the login endpoint
 		middleware.Recovery(
 			middleware.Logging(
 				http.HandlerFunc(user.Login),
+			),
+		),
+	)
+
+	// Protected routes
+	mux.Handle(
+		"GET /api/v1/profile", // Only authenticated users can access this endpoint
+		middleware.Recovery(
+			middleware.Logging(
+				middleware.Auth(jwtService)( // Validate JWT before executing the handler
+					http.HandlerFunc(user.Profile),
+				),
 			),
 		),
 	)

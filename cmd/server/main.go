@@ -45,6 +45,7 @@ func main() {
 	r := router.New(
 		healthHandler,
 		userHandler,
+		jwtService,
 	)
 
 	server := &http.Server{ // This object represents your HTTP server and lets you configure and control it.
